@@ -138,6 +138,9 @@ not CVS or Subversion.")
   "*If non-nil, *scratch* buffer will be saved into the file same
 as other normal files.")
 
+(defvar auto-save-buffers-enhanced-cooperate-elscreen-p nil
+  "*If non-nil, insert scratch data to elscreen default window.")
+
 (defvar auto-save-buffers-enhanced-file-related-with-scratch-buffer
   (expand-file-name "~/.scratch")
   "*File which scratch buffer to be save into.")
@@ -158,7 +161,9 @@ auto-saving."
     (run-with-idle-timer
      auto-save-buffers-enhanced-interval t 'auto-save-buffers-enhanced-save-buffers))
   (when auto-save-buffers-enhanced-save-scratch-buffer-to-file-p
-    (add-hook 'after-init-hook 'auto-save-buffers-enhanced-scratch-read-after-init-hook)))
+    (add-hook 'after-init-hook 'auto-save-buffers-enhanced-scratch-read-after-init-hook))
+  (when auto-save-buffers-enhanced-cooperate-elscreen-p
+    (add-hook 'elscreen-create-hook 'auto-save-buffers-enhanced-cooperate-elscreen-default-window)))
 
 (defun auto-save-buffers-enhanced-scratch-read-after-init-hook ()
   (let ((scratch-buf (get-buffer "*scratch*")))
@@ -166,6 +171,9 @@ auto-saving."
       (with-current-buffer scratch-buf
         (erase-buffer)
         (insert-file-contents auto-save-buffers-enhanced-file-related-with-scratch-buffer)))))
+
+(defalias 'auto-save-buffers-enhanced-cooperate-elscreen-default-window
+  'auto-save-buffers-enhanced-scratch-read-after-init-hook)
 
 (defun auto-save-buffers-enhanced-include-only-checkout-path (flag)
   "If `flag' is non-nil, `auto-save-buffers-enhanced' saves only
@@ -217,13 +225,19 @@ the directories under VCS."
                      auto-save-buffers-enhanced-exclude-regexps buffer-file-name))
                (file-writable-p buffer-file-name))
           (save-buffer)
-        (progn
-          (when (and auto-save-buffers-enhanced-save-scratch-buffer-to-file-p
-                     (equal buffer (get-buffer "*scratch*"))
-                     (buffer-modified-p)
-                     (not (string= initial-scratch-message (buffer-string))))
-            (write-file auto-save-buffers-enhanced-file-related-with-scratch-buffer nil)))
-        ))))
+        (when (and auto-save-buffers-enhanced-save-scratch-buffer-to-file-p
+                   (equal buffer (get-buffer "*scratch*"))
+                   (buffer-modified-p)
+                   (not (string= initial-scratch-message (buffer-string))))
+          (let
+              ((scratch-buffer-string (buffer-string)))
+            (progn
+              (with-temp-buffer
+                (insert scratch-buffer-string)
+                (write-region nil nil
+                              auto-save-buffers-enhanced-file-related-with-scratch-buffer
+                              nil  -1))
+              (set-buffer-modified-p nil))))))))
 
 ;;;; Internal Functions
 ;;;; -------------------------------------------------------------------------
