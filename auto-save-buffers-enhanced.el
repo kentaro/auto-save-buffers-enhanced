@@ -134,6 +134,9 @@ not CVS or Subversion.")
   "*Path of the config file of svk, which is usually located in
 ~/.svk/config.")
 
+(defvar auto-save-buffers-enhanced-quiet-save-p nil
+  "*If non-nil, without 'Wrote <filename>' message.")
+
 (defvar auto-save-buffers-enhanced-save-scratch-buffer-to-file-p nil
   "*If non-nil, *scratch* buffer will be saved into the file same
 as other normal files.")
@@ -224,23 +227,31 @@ the directories under VCS."
                (not (auto-save-buffers-enhanced-regexps-match-p
                      auto-save-buffers-enhanced-exclude-regexps buffer-file-name))
                (file-writable-p buffer-file-name))
-          (save-buffer)
+          (auto-save-buffers-enhanced-saver-buffer)
         (when (and auto-save-buffers-enhanced-save-scratch-buffer-to-file-p
                    (equal buffer (get-buffer "*scratch*"))
                    (buffer-modified-p)
                    (not (string= initial-scratch-message (buffer-string))))
-          (let
-              ((scratch-buffer-string (buffer-string)))
-            (progn
-              (with-temp-buffer
-                (insert scratch-buffer-string)
-                (write-region nil nil
-                              auto-save-buffers-enhanced-file-related-with-scratch-buffer
-                              nil  -1))
-              (set-buffer-modified-p nil))))))))
+          (auto-save-buffers-enhanced-saver-buffer 'scratch))))))
 
 ;;;; Internal Functions
 ;;;; -------------------------------------------------------------------------
+
+(defun auto-save-buffers-enhanced-saver-buffer (&optional scratch-p)
+  (cond
+   (auto-save-buffers-enhanced-quiet-save-p
+    (progn
+      (write-region nil nil buffer-file-name nil -1)
+      (set-buffer-modified-p nil)
+      (set-visited-file-modtime (current-time))))
+   (scratch-p
+    (let
+        ((content (buffer-string)))
+      (with-temp-file
+          auto-save-buffers-enhanced-file-related-with-scratch-buffer
+        (insert content))
+      (set-buffer-modified-p nil)))
+   (t (save-buffer))))
 
 (defun auto-save-buffers-enhanced-regexps-match-p (regexps string)
   (catch 'matched
