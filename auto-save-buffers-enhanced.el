@@ -246,11 +246,6 @@ the directories under VCS."
           auto-save-buffers-enhanced-file-related-with-scratch-buffer
         (insert content))
       (set-buffer-modified-p nil)))
-   (auto-save-buffers-enhanced-quiet-save-p
-    (progn
-      (write-region nil nil buffer-file-name nil -1)
-      (set-buffer-modified-p nil)
-      (set-visited-file-modtime (current-time))))
    (t (save-buffer))))
 
 (defun auto-save-buffers-enhanced-regexps-match-p (regexps string)
