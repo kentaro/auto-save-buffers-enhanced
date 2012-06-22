@@ -238,19 +238,20 @@ the directories under VCS."
 ;;;; -------------------------------------------------------------------------
 
 (defun auto-save-buffers-enhanced-saver-buffer (&optional scratch-p)
-  (if (or scratch-p
-          auto-save-buffers-enhanced-quiet-save-p)
-      (let
-          ((content (buffer-string))
-           (file-name (if scratch-p
-                          auto-save-buffers-enhanced-file-related-with-scratch-buffer
-                        buffer-file-name)))
-        (progn
-          (with-temp-file file-name
-            (insert content))
-          (set-buffer-modified-p nil)
-          (set-visited-file-modtime (current-time))))
-    (save-buffer)))
+  (cond
+   (auto-save-buffers-enhanced-quiet-save-p
+    (progn
+      (write-region nil nil buffer-file-name nil -1)
+      (set-buffer-modified-p nil)
+      (set-visited-file-modtime (current-time))))
+   (scratch-p
+    (let
+        ((content (buffer-string)))
+      (with-temp-file
+          auto-save-buffers-enhanced-file-related-with-scratch-buffer
+        (insert content))
+      (set-buffer-modified-p nil)))
+   (t (save-buffer))))
 
 (defun auto-save-buffers-enhanced-regexps-match-p (regexps string)
   (catch 'matched
