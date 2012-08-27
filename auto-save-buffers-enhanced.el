@@ -248,9 +248,9 @@ the directories under VCS."
       (set-buffer-modified-p nil)))
    (auto-save-buffers-enhanced-quiet-save-p
     (progn
+      (set-visited-file-modtime (current-time))
       (write-region nil nil buffer-file-name nil -1)
-      (set-buffer-modified-p nil)
-      (set-visited-file-modtime (current-time))))
+      (set-buffer-modified-p nil)))
    (t (save-buffer))))
 
 (defun auto-save-buffers-enhanced-regexps-match-p (regexps string)
