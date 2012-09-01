@@ -247,11 +247,18 @@ the directories under VCS."
         (insert content))
       (set-buffer-modified-p nil)))
    (auto-save-buffers-enhanced-quiet-save-p
-    (progn
-      (write-region nil nil buffer-file-name nil -1)
-      (set-buffer-modified-p nil)
-      (set-visited-file-modtime (current-time))))
+    (auto-save-buffers-enhanced-quiet-save-buffer))
    (t (save-buffer))))
+
+(defun auto-save-buffers-enhanced-quiet-save-buffer ()
+  (fset 'original-write-region (symbol-function 'write-region))
+  (flet
+      ((write-region (start end filename &optional append visit lockname mustbenew)
+                     (original-write-region start end filename append -1 lockname mustbenew))
+       (message (format-string &rest args) t))
+    (save-buffer)
+    (set-buffer-modified-p nil)
+    (clear-visited-file-modtime)))
 
 (defun auto-save-buffers-enhanced-regexps-match-p (regexps string)
   (catch 'matched
