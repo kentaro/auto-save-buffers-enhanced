@@ -157,6 +157,7 @@ as other normal files.")
 (defvar auto-save-buffers-enhanced-activity-flag t
   "*If non-nil, `auto-save-buffers-enhanced' saves buffers.")
 
+;;;###autoload
 (defun auto-save-buffers-enhanced (flag)
   "If `flag' is non-nil, activate `auto-save-buffers-enhanced' and start
 auto-saving."
@@ -178,6 +179,7 @@ auto-saving."
 (defalias 'auto-save-buffers-enhanced-cooperate-elscreen-default-window
   'auto-save-buffers-enhanced-scratch-read-after-init-hook)
 
+;;;###autoload
 (defun auto-save-buffers-enhanced-include-only-checkout-path (flag)
   "If `flag' is non-nil, `auto-save-buffers-enhanced' saves only
 the directories under VCS."
@@ -192,6 +194,7 @@ the directories under VCS."
 ;;;; Command
 ;;;; -------------------------------------------------------------------------
 
+;;;###autoload
 (defun auto-save-buffers-enhanced-toggle-activity ()
   "Toggle `auto-save-buffers-enhanced' activity"
   (interactive)
@@ -202,6 +205,7 @@ the directories under VCS."
       (message "auto-save-buffers-enhanced on")
     (message "auto-save-buffers-enhanced off")))
 
+;;;###autoload
 (defun auto-save-buffers-enhanced-reload-svk ()
   "Reload the checkout paths from SVK configuration file."
   (interactive)
