@@ -171,7 +171,8 @@ auto-saving."
 
 (defun auto-save-buffers-enhanced-scratch-read-after-init-hook ()
   (let ((scratch-buf (get-buffer "*scratch*")))
-    (when scratch-buf
+    (when (and scratch-buf
+               (file-exists-p auto-save-buffers-enhanced-file-related-with-scratch-buffer))
       (with-current-buffer scratch-buf
         (erase-buffer)
         (insert-file-contents auto-save-buffers-enhanced-file-related-with-scratch-buffer)))))
