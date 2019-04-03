@@ -298,7 +298,7 @@ the directories under VCS."
         (when (equal "/" default-directory)
             (throw 'root t))))
     (when (and checkout-path
-               (not (memq checkout-path auto-save-buffers-enhanced-include-regexps)))
+               (not (member checkout-path auto-save-buffers-enhanced-include-regexps)))
       (setq auto-save-buffers-enhanced-include-regexps
             (cons (concat "^" (regexp-quote checkout-path))
                   auto-save-buffers-enhanced-include-regexps)))
